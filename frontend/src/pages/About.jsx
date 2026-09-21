@@ -1,4 +1,4 @@
-import { Button, Result } from 'antd';
+import { Result } from 'antd';
 
 import useLanguage from '@/locale/useLanguage';
 
@@ -8,27 +8,12 @@ const About = () => {
     <Result
       status="info"
       title={'IDURAR'}
-      subTitle={translate('Do you need help on customize of this app')}
+      subTitle={translate('Open source ERP CRM for invoices, quotes and payments')}
       extra={
-        <>
-          <p>
-            Website : <a href="https://www.idurarapp.com">www.idurarapp.com</a>{' '}
-          </p>
-          <p>
-            GitHub :{' '}
-            <a href="https://github.com/idurar/idurar-erp-crm">
-              https://github.com/idurar/idurar-erp-crm
-            </a>
-          </p>
-          <Button
-            type="primary"
-            onClick={() => {
-              window.open(`https://www.idurarapp.com/contact-us/`);
-            }}
-          >
-            {translate('Contact us')}
-          </Button>
-        </>
+        <p>
+          A modified fork of IDURAR ERP CRM, licensed under AGPL-3.0.{' '}
+          <a href="https://github.com/kdave47/project-erp-crm">Source</a>
+        </p>
       }
     />
   );
