@@ -1,7 +1,8 @@
 const pug = require('pug');
 const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
-let pdf = require('html-pdf');
+const puppeteer = require('puppeteer');
 const { listAllSettings, loadSettings } = require('@/middlewares/settings');
 const { getData } = require('@/middlewares/serverData');
 const useLanguage = require('@/locale/useLanguage');
@@ -67,16 +68,26 @@ exports.generatePdf = async (
         moment: moment,
       });
 
-      pdf
-        .create(htmlContent, {
+      // the download folder for this model may not exist yet on a fresh clone
+      fs.mkdirSync(path.dirname(targetLocation), { recursive: true });
+
+      const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+      try {
+        const page = await browser.newPage();
+        // 60s, not the 30s default: the very first Chromium launch after install can
+        // stall on macOS Gatekeeper verification. Steady-state renders take ~2.5s.
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 60000 });
+        await page.pdf({
+          path: targetLocation,
           format: info.format,
-          orientation: 'portrait',
-          border: '10mm',
-        })
-        .toFile(targetLocation, function (error) {
-          if (error) throw new Error(error);
-          if (callback) callback();
+          printBackground: true,
+          margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' },
         });
+      } finally {
+        await browser.close();
+      }
+
+      if (callback) await callback();
     }
   } catch (error) {
     throw new Error(error);
